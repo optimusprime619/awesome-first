@@ -43,11 +43,15 @@ function batch_alias_menu() {
     'page arguments' => array('batch_alias_settings_form'),
     'access arguments' => array('configure batch alias settings'),
   );
+  $items['admin/config/development/batch_alias/settings'] = array(
+    'title' => 'Batch Alias Settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
   $items['admin/config/development/batch_alias/run_alias'] = array(
-    'title' => 'Rub batch alias',
+    'title' => 'Run batch alias',
     'description' => 'Trigger batch aliasing of content as per the aliasing settings',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array(''),
+    'page arguments' => array('run_batch_aliasing_form'),
     'access arguments' => array('run batch aliasing'),
     'type' => MENU_LOCAL_TASK,
   );
@@ -63,21 +67,43 @@ function batch_alias_settings_form() {
   $form['batch_settings'] = array(
     '#title' => t('Batch Alias Settings'),
     '#type' => 'fieldset',
-    '#collapsible' => TRUE,    
+    '#collapsible' => TRUE,
+    '#description' => t('Choose the content types and settings for the batch URL aliasing process. If a content type is disabled it implies there are no nodes to alias in it.'),
   );
   if (count($aliasable_content_types)) {
+    $content_types = array();
     foreach ($aliasable_content_types as $content_type => $content_name) {
-      print "content type " . $content_type . " Name " . $content_name;
+      $content_types[] = $content_type;
       $form['batch_settings'][$content_type] = array(
         '#type' => 'checkbox',
         '#title' => $content_name,
-        '#disabled' => node_exists_for_type($content_type),
+        '#disabled' => !(node_exists_for_type($content_type)),
+        '#default_value' => variable_get('batch_alias_' . $content_type, 0),
       );
     }
   }
-  return $form;
+  $form['batch_settings']['all_content_types'] = array(
+    '#type' => 'hidden',
+    '#value' => $content_types,
+  );
+  $form['#submit'][] = 'batch_alias_settings_form_submit';
+  return system_settings_form($form);
 }
 
+/**
+ * Submission handler for the batch alias settings form
+ * @see batch_alias_settings_form().
+ */
+function batch_alias_settings_form_submit($form, &$form_state) {
+  $submitted_settings = $form_state['values'];
+  $content_type_info = $submitted_settings['all_content_types'];
+  if (count($content_type_info)) {
+    foreach ($content_type_info as $content_type_name) {
+      variable_set('batch_alias_' . $content_type_name, $submitted_settings[$content_type_name]);
+    }
+  }
+}
+ 
 /**
  * Helper function to return content types applicable for aliasing to generate checkboxes in batch alias settings form
  *
@@ -88,7 +114,7 @@ function get_aliasable_content_type() {
   $node_types = array();
   $node_types_obj_arr = node_type_get_types();
   $node_types_arr = array_keys($node_types_obj_arr);
-  foreach($node_types_arr as $num_idx => $node_type) {
+  foreach ($node_types_arr as $num_idx => $node_type) {
     $node_types[$node_type] = $node_types_obj_arr[$node_type]->name;
   }
   // check if all node types can be aliased, (i-e)
@@ -127,4 +153,23 @@ function node_exists_for_type($content_type) {
     $exists = FALSE;
   }
   return $exists;
+}
+
+/**
+ * Form builder to get user confirmation to start running the node aliasing with Batch API
+ */
+function run_batch_aliasing_form() {
+  $form = array();
+  $form['#submit'][] = 'run_batch_alias';
+  $question = t("Are you sure you want to run Batch aliasing of content?");
+  $description = t("This might take long and depends on the quantity of content in your site and your URL alias settings. This action cannot be undone.");
+  $path = "admin/config/development/batch_alias";
+  return confirm_form($form, $question, $path, $description, $yes = "Confirm", $no = "Cancel", $name = "batch_alias_confirm");
+}
+
+/**
+ * Function to trigger the batch aliasing process
+ */
+function run_batch_alias() {
+  drupal_set_message(t("I AM IN"));
 }
