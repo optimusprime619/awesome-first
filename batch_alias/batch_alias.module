@@ -8,10 +8,11 @@
 /**
  * Implements hook_help().
  */
-function batch_alias_help() {
-  switch ($path):
+function batch_alias_help($path, $arg) {
+  switch ($path) {
     case 'admin/help#batch_alias':
       return '<p>' . t('This module provides the option of aliasing content through the Batch API in Drupal. In general for long running processes, Batch API uses ajax calls to send in new requests preventing server time out. In case javascript is disabled in the browser Batch API uses meta refresh tags') . '</p>';
+  }
 }
 
 /**
@@ -57,17 +58,73 @@ function batch_alias_menu() {
  * Form builder for the alias settings option form
  */
 function batch_alias_settings_form() {
-  $aliasable_content_type = get_aliasable_content_type();
+  $aliasable_content_types = get_aliasable_content_type();
   $form = array();
   $form['batch_settings'] = array(
     '#title' => t('Batch Alias Settings'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,    
   );
-  $form['']
+  if (count($aliasable_content_types)) {
+    foreach ($aliasable_content_types as $content_type => $content_name) {
+      print "content type " . $content_type . " Name " . $content_name;
+      $form['batch_settings'][$content_type] = array(
+        '#type' => 'checkbox',
+        '#title' => $content_name,
+        '#disabled' => node_exists_for_type($content_type),
+      );
+    }
+  }
   return $form;
 }
 
 /**
+ * Helper function to return content types applicable for aliasing to generate checkboxes in batch alias settings form
  *
+ * @return
+ *  associative array of format $arr['node_type_machine_name'] = 'Node Type Human readable name'
  */
+function get_aliasable_content_type() {
+  $node_types = array();
+  $node_types_obj_arr = node_type_get_types();
+  $node_types_arr = array_keys($node_types_obj_arr);
+  foreach($node_types_arr as $num_idx => $node_type) {
+    $node_types[$node_type] = $node_types_obj_arr[$node_type]->name;
+  }
+  // check if all node types can be aliased, (i-e)
+  // if there's a general pattern for content then TRUE, else only those node types with a specific alias pattern qualify
+  $node_pattern_exists = variable_get('pathauto_node_pattern', '');
+  if ($node_pattern_exists) {
+    return $node_types;
+  }
+  foreach ($node_types_arr as $node_type) {
+    if (!variable_get('pathauto_node_' . $node_type . '_pattern', '')) {
+      unset($node_types[$node_type]);
+    }
+  }
+  return $node_types;
+}
+
+/**
+ * Function to check if nodes exist for given content type and return an appropriate flag
+ *
+ * @param
+ *  $content_type - the content type to check for nodes
+ * @return
+ *  $exists - TRUE if nodes present for the content type, FALSE otherwise 
+ */
+function node_exists_for_type($content_type) {
+  // check for a single node rather than a count query which might prove costly for heavy database with large content
+  $exists = TRUE;
+  $nodes_exists_qry = db_select('node', 'n')
+  ->fields('n', array('nid'))
+  ->condition('type', $content_type);
+  $nodes_exist = $nodes_exists_qry
+  ->range(0, 1)
+  ->execute()
+  ->fetchField();
+  if (empty($nodes_exist) || $nodes_exist == '0') {
+    $exists = FALSE;
+  }
+  return $exists;
+}
