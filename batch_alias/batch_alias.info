@@ -1,0 +1,4 @@
+name = Batch Aliasing
+description = Provides functionality to create aliasing of content through Drupal's Batch API.
+core = 7.x
+dependencies[] = pathauto

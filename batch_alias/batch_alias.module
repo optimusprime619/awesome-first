@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * @file
+ * This module provides ability to alias content through Drupal's Batch API.
+ */
+ 
+/**
+ * Implements hook_help().
+ */
+function batch_alias_help() {
+  switch ($path):
+    case 'admin/help#batch_alias':
+      return '<p>' . t('This module provides the option of aliasing content through the Batch API in Drupal. In general for long running processes, Batch API uses ajax calls to send in new requests preventing server time out. In case javascript is disabled in the browser Batch API uses meta refresh tags') . '</p>';
+}
+
+/**
+ * Implements hook_permission().
+ */
+function batch_alias_permission() {
+  return array(
+    'configure batch alias settings' => array(
+      'title' => t('Configure batch aliasing settings'),
+      'description' => t('Configure settings for Batch aliasing of content'),
+    ),
+    'run batch aliasing' => array(
+      'title' => t('Run batch aliasing of content'),
+      'description' => t('Run batch operation for aliasing of content'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function batch_alias_menu() {
+  $items = array();
+  $items['admin/config/development/batch_alias'] = array(
+    'title' => 'Configure Batch Alias Settings',
+    'description' => 'Select which content type needs to be aliased and other granular settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('batch_alias_settings_form'),
+    'access arguments' => array('configure batch alias settings'),
+  );
+  $items['admin/config/development/batch_alias/run_alias'] = array(
+    'title' => 'Rub batch alias',
+    'description' => 'Trigger batch aliasing of content as per the aliasing settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array(''),
+    'access arguments' => array('run batch aliasing'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Form builder for the alias settings option form
+ */
+function batch_alias_settings_form() {
+  $aliasable_content_type = get_aliasable_content_type();
+  $form = array();
+  $form['batch_settings'] = array(
+    '#title' => t('Batch Alias Settings'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,    
+  );
+  $form['']
+  return $form;
+}
+
+/**
+ *
+ */
