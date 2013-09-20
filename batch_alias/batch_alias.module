@@ -171,5 +171,61 @@ function run_batch_aliasing_form() {
  * Function to trigger the batch aliasing process
  */
 function run_batch_alias() {
-  drupal_set_message(t("I AM IN"));
+  $aliasible_node_types = get_aliasable_content_type();
+  $operations = array();
+  foreach ($aliasible_node_types as $type => $name) {
+    if (variable_get('batch_alias_' . $type, 0)) {
+      $total = db_query("SELECT COUNT(nid) FROM {node} WHERE `type` = :type AND status = :status", array(":type" => $type, ":status" => 1))->fetchField();
+      if ($total) {
+        $operations[] = array('batch_alias_generate_alias', array($type, $name, $total));
+      }      
+    }
+  }
+  $batch = array(
+    'init_message' => t('Starting alias generation'),
+    'title' => t('Content Aliasing'),
+    'operations' => $operations,
+    'finished' => 'batch_alias_complete',
+  );
+  batch_set($batch);
+}
+
+/**
+ * Function to generate the respective alias for content types
+ */
+function batch_alias_generate_alias($node_type, $name, $total_count, &$context) {
+  $count = 10;
+  $nids = array();
+  /*$nodes_fetch_qry = db_select('node', 'n')
+  ->fields(n, array(nid))
+  ->condition('type', $content_type)
+  ->condtion('status', 1)
+  ->range($offset, $limit);*/
+  $nodes_select = "SELECT `nid` FROM {node} WHERE `type` = :node_type AND `status` = :node_status";
+  for ($offset = 0; $offset <= $total_count; $offset += $count) {
+    $nodes_fetch_result = db_query_range($nodes_select, $offset, $count, array(':node_type' => $node_type, ':node_status' => 1));
+    foreach ($nodes_fetch_result as $nodes ) {
+      $nids[] = $nodes->nid;
+    }
+    if (count($nids)) {
+      pathauto_node_update_alias_multiple($nids, $op = 'bulkupdate', $options = array());
+      unset($nids);
+    }
+    else {
+      $context['finished'] = 1;
+    }
+  }
+  $context['finished'] = 1;
+}
+
+/**
+ * Function called at the end of the aliasing process
+ */
+function batch_alias_complete($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('It is over, it is done'));
+  }
+  else {
+    drupal_set_message(t('Oh snap!'));
+  }
 }
