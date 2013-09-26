@@ -68,13 +68,21 @@ function batch_alias_settings_form() {
     '#title' => t('Batch Alias Settings'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
-    '#description' => t('Choose the content types and settings for the batch URL aliasing process. If a content type is disabled it implies there are no nodes to alias in it.'),
+    '#description' => t('Choose the desired batch alias settings for being used in Batch Aliasing'),
+  );
+  $alias_settings = &$form['batch_settings'];
+  $alias_settings['node_settings'] = array(
+      '#title' => t('Node Settings'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#description' => t('Choose the content types and settings for the batch URL aliasing process. 
+                            If a content type is disabled it implies there are no nodes to alias in it.'),
   );
   if (count($aliasable_content_types)) {
     $content_types = array();
     foreach ($aliasable_content_types as $content_type => $content_name) {
       $content_types[] = $content_type;
-      $form['batch_settings'][$content_type] = array(
+      $alias_settings['node_settings'][$content_type] = array(
         '#type' => 'checkbox',
         '#title' => t('%type', array('%type' => $content_name)),
         '#disabled' => !(node_exists_for_type($content_type)),
@@ -83,7 +91,7 @@ function batch_alias_settings_form() {
     }
   }
   else {
-    $form['batch_settings']['#collapsible'] = FALSE;
+    $alias_settings['node_settings']['#collapsible'] = FALSE;
     drupal_set_message(t('It appears that your content types do not have an alias pattern set or there might be no content types at all. 
                     Please check your content type settings in !content_type_link and URL alias settings in !alias_settings_link', 
                     array('!content_type_link' => l(t('Content Types'), 'admin/structure/types') , 
