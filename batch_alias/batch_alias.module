@@ -92,6 +92,9 @@ function batch_alias_settings_form() {
   }
   else {
     $alias_settings['node_settings']['#collapsible'] = FALSE;
+    $alias_settings['node_settings']['node_display_message'] = array(
+      '#markup' => '<b>' . t('No Node settings available') . '</b>',
+    );
     drupal_set_message(t('It appears that your content types do not have an alias pattern set or there might be no content types at all. 
                     Please check your content type settings in !content_type_link and URL alias settings in !alias_settings_link', 
                     array('!content_type_link' => l(t('Content Types'), 'admin/structure/types') , 
@@ -103,6 +106,18 @@ function batch_alias_settings_form() {
   $form['batch_settings']['all_content_types'] = array(
     '#type' => 'hidden',
     '#value' => $content_types,
+  );
+  
+  $alias_settings['user_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User Alias Settings'),
+    '#collapsible' => TRUE,
+    '#description' => t('Configure settings for User Aliasing'),
+  );
+  $alias_settings['user_settings']['user_alias_option'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable Batch aliasing of users'),
+    '#default_value' => variable_get('batch_alias_users', 0),
   );
   $form['#submit'][] = 'batch_alias_settings_form_submit';
   return system_settings_form($form);
@@ -120,6 +135,7 @@ function batch_alias_settings_form_submit($form, &$form_state) {
       variable_set('batch_alias_' . $content_type_name, $submitted_settings[$content_type_name]);
     }
   }
+  variable_set('batch_alias_users', $submitted_settings['user_alias_option']);
 }
  
 /**
