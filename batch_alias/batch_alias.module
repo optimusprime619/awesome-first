@@ -142,7 +142,7 @@ function batch_alias_settings_form_submit($form, &$form_state) {
  * Helper function to return content types applicable for aliasing to generate checkboxes in batch alias settings form
  *
  * @return
- *  associative array of format $arr['node_type_machine_name'] = 'Node Type Human readable name'
+ *  associative array of format $arr['node_type_machine_name'] = 'Node Type Human readable name' eligible for being aliased
  */
 function get_aliasable_content_type() {
   $node_types = array();
@@ -211,10 +211,15 @@ function run_batch_alias() {
     if (variable_get('batch_alias_' . $type, 0)) {
       $total = db_query("SELECT COUNT(nid) FROM {node} WHERE `type` = :type AND status = :status", array(":type" => $type, ":status" => 1))->fetchField();
       if ($total) {
-        $operations[] = array('batch_alias_generate_alias', array($type, $name, $total));
+        $operations[] = array('batch_alias_generate_node_alias', array($type, $name, $total));
       }      
     }
   }
+  if (variable_get('pathauto_user_pattern', '')) {
+    $users_count = db_query("SELECT COUNT(uid) FROM {users} WHERE `uid` > 0")->fetchField();
+    $operations[] = array('batch_alias_generate_user_alias', array($users_count));
+  }
+  
   $batch = array(
     'init_message' => t('Starting alias generation'),
     'title' => t('Content Aliasing'),
@@ -234,7 +239,7 @@ function run_batch_alias() {
  *  $context - the context array provided by the Batch API
  *
  */
-function batch_alias_generate_alias($node_type, $name, $total_count, &$context) {
+function batch_alias_generate_node_alias($node_type, $name, $total_count, &$context) {
   $count = 10;
   $nids = array();
   /*$nodes_fetch_qry = db_select('node', 'n')
@@ -268,9 +273,45 @@ function batch_alias_generate_alias($node_type, $name, $total_count, &$context) 
   $batch_results = &$context['results'];
   $batch_results['types'][] = $node_type; 
   $batch_results[$node_type] = t('%count of %total nodes processed for type @name', array('%count' => $sandbox['progress'], '%total' => $total_count, '@name' => $name));
-  $batch_results['grandtotal'] = isset($batch_results['grandtotal']) ? $batch_results['grandtotal'] : 0;
-  $batch_results['grandtotal'] += $sandbox['progress'];
+  $batch_results['grandtotal_nodes'] = isset($batch_results['grandtotal_nodes']) ? $batch_results['grandtotal_nodes'] : 0;
+  $batch_results['grandtotal_nodes'] += $sandbox['progress'];
   watchdog('batch_alias', '%count of %total nodes processed for type @type', array('%count' => $sandbox['progress'], '%total' => $total_count, '@type' => $node_type));
+}
+
+/**
+ * Function to generate user alias in batch
+ */
+function batch_alias_generate_user_alias($users_count, &$context) {
+  $count = 10;
+  $uids = array();
+  if (!isset($context['sandbox'])) {
+    $context['sandbox'] = array();
+    $context['results'] = array();
+  }
+  $sandbox = &$context['sandbox'];
+  if (empty($sandbox)) {
+    $sandbox['progress'] = 0;
+  }
+  $users_select = "SELECT `uid` FROM {users} WHERE uid > 0";
+  for ($offset = 0; $offset <= $users_count; $offset += $count) {
+    $users_fetch_rs = db_query_range($users_select, $offset, $count);
+    foreach ($users_fetch_rs as $users) {
+      $uids[] = $users->uid;
+    }
+    $added_users = count($uids);
+    if ($added_users) {
+      $sandbox['progress'] += $added_users;
+      pathauto_user_update_alias_multiple($uids, $op = 'bulkupdate');
+      $context['message'] = t('User Aliasing: Processed %progress of %total', array('%progress' => $sandbox['progress'], '%total' => $users_count));
+      unset($uids);
+    }
+  }
+  $context['finished'] = 1;
+  $batch_results = &$context['results'];
+  $batch_results['grandtotal_users'] = isset($batch_results['grandtotal_users']) ? $batch_results['grandtotal_users'] : 0;
+  $batch_results['grandtotal_users'] += $sandbox['progress'];
+  $batch_results['user_aliasing_result'] = t('%count of %total users aliased', array('%count' => $sandbox['progress'], '%total' => $users_count));
+  watchdog('batch_alias', '%count of %total users aliased', array('%count' => $sandbox['progress'], '%total' => $users_count));
 }
 
 /**
@@ -281,11 +322,18 @@ function batch_alias_generate_alias($node_type, $name, $total_count, &$context) 
 function batch_alias_complete($success, $results, $operations) {
   if ($success) {
     drupal_set_message(t('Batch alias generation complete.'));
-    foreach ($results['types'] as $node_type) {
-      drupal_set_message($results[$node_type]);
+    if (count($results['types'])) {
+      foreach ($results['types'] as $node_type) {
+        drupal_set_message($results[$node_type]);
+      }
+      drupal_set_message(t('Grand total of number of nodes aliased: %grandtotal_nodes', array('%grandtotal_nodes' => $results['grandtotal_nodes'])));
+      watchdog('batch_alias', 'Grand total of number of nodes aliased: %grandtotal_nodes', array('%grandtotal_nodes' => $results['grandtotal_nodes']));
     }
-    drupal_set_message(t('Grand total of number of nodes aliased: %grandtotal', array('%grandtotal' => $results['grandtotal'])));
-    watchdog('batch_alias', 'Grand total of number of nodes aliased: %grandtotal', array('%grandtotal' => $results['grandtotal']));
+    if (isset($results['grandtotal_users'])) {
+      drupal_set_message($results['user_aliasing_result']);
+      drupal_set_message(t('Grand total of number of users aliased: %grandtotal_users', array('%grandtotal_users' => $results['grandtotal_users'])));
+      watchdog('batch_alias', 'Grand total of number of users aliased: %grandtotal_users', array('%grandtotal_users' => $results['grandtotal_users']));
+    }
   }
   else {
     drupal_set_message(t('Oh snap! Something went wrong.'));
