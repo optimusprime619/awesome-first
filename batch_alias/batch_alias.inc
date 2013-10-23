@@ -44,9 +44,10 @@ function batch_alias_settings_form() {
     );
     drupal_set_message(t('It appears that your content types do not have an alias pattern set or there might be no content types at all. 
                     Please check your content type settings in !content_type_link and URL alias settings in !alias_settings_link',
-                    array('!content_type_link' => l(t('Content Types'), 'admin/structure/types'),
-                    '!alias_settings_link' => l(t('URL Patterns'), 'admin/config/search/path/patterns'))),
-                    'warning');
+                    array(
+                      '!content_type_link' => l(t('Content Types'), 'admin/structure/types'),
+                      '!alias_settings_link' => l(t('URL Patterns'), 'admin/config/search/path/patterns'))),
+                      'warning');
     return $form;
   }
 
@@ -86,8 +87,7 @@ function batch_alias_settings_form_submit($form, &$form_state) {
 }
 
 /**
- * Form builder to get user confirmation to start 
- * running the node aliasing with Batch API.
+ * Form builder to run batch aliasing.
  */
 function run_batch_aliasing_form() {
   $form = array();
@@ -108,7 +108,10 @@ function run_batch_alias() {
     if (variable_get('batch_alias_' . $type, 0)) {
       $total = db_query("SELECT COUNT(nid) FROM {node} WHERE `type` = :type AND status = :status", array(":type" => $type, ":status" => 1))->fetchField();
       if ($total) {
-        $operations[] = array('batch_alias_generate_node_alias', array($type, $name, $total));
+        $operations[] = array(
+                          'batch_alias_generate_node_alias',
+                          array($type, $name, $total)
+                        );
       }
     }
   }

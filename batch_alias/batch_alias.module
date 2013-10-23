@@ -4,7 +4,7 @@
  * @file
  * This module provides ability to alias content through Drupal's Batch API.
  */
- 
+
 /**
  * Implements hook_help().
  */
@@ -62,7 +62,7 @@ function batch_alias_menu() {
 }
 
 /**
- * Helper function to return content types applicable for aliasing to generate checkboxes in batch alias settings form
+ * Return content types applicable for aliasing in batch alias settings form.
  * @return
  * associative array of format $arr['node_type_machine_name'] = 'Node Type Human readable name' eligible for being aliased
  */
@@ -73,8 +73,8 @@ function get_aliasable_content_type() {
   foreach ($node_types_arr as $num_idx => $node_type) {
     $node_types[$node_type] = $node_types_obj_arr[$node_type]->name;
   }
-  // check if all node types can be aliased, (i-e)
-  // if there's a general pattern for content then TRUE, else only those node types with a specific alias pattern qualify
+  // Check if all node types can be aliased, (i-e)
+  // If there's a general pattern for content then TRUE, else only those node types with a specific alias pattern qualify
   $node_pattern_exists = variable_get('pathauto_node_pattern', '');
   if ($node_pattern_exists) {
     return $node_types;
@@ -88,14 +88,15 @@ function get_aliasable_content_type() {
 }
 
 /**
- * Function to check if nodes exist for given content type and return an appropriate flag
+ * Function to check if nodes exist for given content type and return an appropriate flag.
  * @param
  * $content_type - the content type to check for nodes
+ *
  * @return
- * $exists - TRUE if nodes present for the content type, FALSE otherwise 
+ * exists - TRUE if nodes present for the content type, FALSE otherwise
  */
 function node_exists_for_type($content_type) {
-  // check for a single node rather than a count query which might prove costly for heavy database with large content
+  // Check for single node rather than count query which might prove costly for heavy database with large content.
   $exists = TRUE;
   $nodes_exists_qry = db_select('node', 'n')
   ->fields('n', array('nid'))
@@ -111,12 +112,14 @@ function node_exists_for_type($content_type) {
 }
 
 /**
- * Function to generate the respective alias for content types
+ * Function to generate the respective alias for content types.
+ *
  * @param
  *  $node_type - the machine name of the node type
  *  $name - the human readable name of node type
  *  $total_count - the total number of published nodes of a node type
  *  $context - the context array provided by the Batch API
+ *
  */
 function batch_alias_generate_node_alias($node_type, $name, $total_count, &$context) {
   $count = 10;
@@ -158,7 +161,7 @@ function batch_alias_generate_node_alias($node_type, $name, $total_count, &$cont
 }
 
 /**
- * Function to generate user alias in batch
+ * Function to generate user alias in batch.
  */
 function batch_alias_generate_user_alias($users_count, &$context) {
   $count = 10;
@@ -194,9 +197,8 @@ function batch_alias_generate_user_alias($users_count, &$context) {
 }
 
 /**
- * Success callback for the batch aliasing process
- * @see run_batch_alias().
- *
+ * Success callback for the batch aliasing process.
+ * @see run_batch_alias()
  */
 function batch_alias_complete($success, $results, $operations) {
   if ($success) {
@@ -205,18 +207,30 @@ function batch_alias_complete($success, $results, $operations) {
       foreach ($results['types'] as $node_type) {
         drupal_set_message($results[$node_type]);
       }
-      drupal_set_message(t('Grand total of number of nodes aliased: %grandtotal_nodes', array('%grandtotal_nodes' => $results['grandtotal_nodes'])));
-      watchdog('batch_alias', 'Grand total of number of nodes aliased: %grandtotal_nodes', array('%grandtotal_nodes' => $results['grandtotal_nodes']));
+      drupal_set_message(t('Grand total of number of nodes aliased: %grandtotal_nodes', array(
+        '%grandtotal_nodes' => $results['grandtotal_nodes'])
+      
+      ));
+      watchdog('batch_alias', 'Grand total of number of nodes aliased: %grandtotal_nodes', array(
+        '%grandtotal_nodes' => $results['grandtotal_nodes'])
+      );
     }
     if (isset($results['grandtotal_users'])) {
       drupal_set_message($results['user_aliasing_result']);
-      drupal_set_message(t('Grand total of number of users aliased: %grandtotal_users', array('%grandtotal_users' => $results['grandtotal_users'])));
-      watchdog('batch_alias', 'Grand total of number of users aliased: %grandtotal_users', array('%grandtotal_users' => $results['grandtotal_users']));
+      drupal_set_message(t('Grand total of number of users aliased: %grandtotal_users', array(
+        '%grandtotal_users' => $results['grandtotal_users']
+      )));
+      watchdog('batch_alias', 'Grand total of number of users aliased: %grandtotal_users', array(
+        '%grandtotal_users' => $results['grandtotal_users']
+      ));
     }
   }
   else {
     $error_operation = reset($operations);
-    $message = t('An error occurred while processing %error_operation with arguments: @arguments', array('%error_operation' => $error_operation[0], '@arguments' => print_r($error_operation[1], TRUE)));
-    drupal_set_message($message, 'error');    
+    $message = t('An error occurred while processing %error_operation with arguments: @arguments', array(
+                '%error_operation' => $error_operation[0],
+                '@arguments' => print_r($error_operation[1], TRUE)
+              ));
+    drupal_set_message($message, 'error')
   }
 }

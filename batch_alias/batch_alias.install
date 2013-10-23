@@ -4,13 +4,13 @@
  * @file
  * To clear out any variables set by the Batch Alias module
  */
- 
+
 /**
  * Implements hook_uninstall().
- * This hook does the cleanup of any custom variables used by the batch_alias module
+ * cleanup custom variables used by module.
  */
 function batch_alias_uninstall() {
-  
+
   // Delete the batch user settings.
   variable_del('batch_alias_users');
 
