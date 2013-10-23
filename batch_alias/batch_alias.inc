@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Drush integration for Coder module.
+ * Additional functions for Admin configuration form for the Batch Alias.
  */
 
 /**
