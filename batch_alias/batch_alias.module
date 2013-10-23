@@ -74,7 +74,7 @@ function get_aliasable_content_type() {
     $node_types[$node_type] = $node_types_obj_arr[$node_type]->name;
   }
   // Check if all node types can be aliased, (i-e)
-  // If there's a general pattern for content then TRUE, else only those node types with a specific alias pattern qualify
+  // If there's a general pattern for content then TRUE, else only those node types with a specific alias pattern qualify.
   $node_pattern_exists = variable_get('pathauto_node_pattern', '');
   if ($node_pattern_exists) {
     return $node_types;
@@ -114,7 +114,6 @@ function node_exists_for_type($content_type) {
 
 /**
  * Function to generate the respective alias for content types.
- *
  * @param
  *  node_type - the machine name of the node type
  *  name - the human readable name of node type
@@ -157,7 +156,7 @@ function batch_alias_generate_node_alias($node_type, $name, $total_count, &$cont
   }
   $context['finished'] = 1;
   $batch_results = &$context['results'];
-  $batch_results['types'][] = $node_type; 
+  $batch_results['types'][] = $node_type;
   $batch_results[$node_type] = t('%count of %total nodes processed for type @name', array(
     '%count' => $sandbox['progress'],
     '%total' => $total_count, '@name' => $name)
