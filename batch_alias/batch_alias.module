@@ -64,7 +64,7 @@ function batch_alias_menu() {
 /**
  * Return content types applicable for aliasing in batch alias settings form.
  * @return
- * associative array of format $arr['node_type_machine_name'] = 'Node Type Human readable name' eligible for being aliased
+ *  node_types - associative array of format $arr['node_type_machine_name'] = 'Node Type Human readable name' eligible for being aliased
  */
 function get_aliasable_content_type() {
   $node_types = array();
@@ -116,10 +116,10 @@ function node_exists_for_type($content_type) {
  * Function to generate the respective alias for content types.
  *
  * @param
- *  $node_type - the machine name of the node type
- *  $name - the human readable name of node type
- *  $total_count - the total number of published nodes of a node type
- *  $context - the context array provided by the Batch API
+ *  node_type - the machine name of the node type
+ *  name - the human readable name of node type
+ *  total_count - the total number of published nodes of a node type
+ *  context - the context array provided by the Batch API
  */
 function batch_alias_generate_node_alias($node_type, $name, $total_count, &$context) {
   $count = 10;
@@ -164,7 +164,10 @@ function batch_alias_generate_node_alias($node_type, $name, $total_count, &$cont
   );
   $batch_results['grandtotal_nodes'] = isset($batch_results['grandtotal_nodes']) ? $batch_results['grandtotal_nodes'] : 0;
   $batch_results['grandtotal_nodes'] += $sandbox['progress'];
-  watchdog('batch_alias', '%count of %total nodes processed for type @type', array('%count' => $sandbox['progress'], '%total' => $total_count, '@type' => $node_type));
+  watchdog('batch_alias', '%count of %total nodes processed for type @type', array(
+    '%count' => $sandbox['progress'],
+    '%total' => $total_count, '@type' => $node_type),
+  );
 }
 
 /**
@@ -215,9 +218,8 @@ function batch_alias_complete($success, $results, $operations) {
         drupal_set_message($results[$node_type]);
       }
       drupal_set_message(t('Grand total of number of nodes aliased: %grandtotal_nodes', array(
-        '%grandtotal_nodes' => $results['grandtotal_nodes'])
-      
-      ));
+        '%grandtotal_nodes' => $results['grandtotal_nodes'],
+      )));
       watchdog('batch_alias', 'Grand total of number of nodes aliased: %grandtotal_nodes', array(
         '%grandtotal_nodes' => $results['grandtotal_nodes'],
       ));

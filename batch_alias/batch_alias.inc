@@ -109,9 +109,9 @@ function run_batch_alias() {
       $total = db_query("SELECT COUNT(nid) FROM {node} WHERE `type` = :type AND status = :status", array(":type" => $type, ":status" => 1))->fetchField();
       if ($total) {
         $operations[] = array(
-                          'batch_alias_generate_node_alias',
-                          array($type, $name, $total),
-                        );
+          'batch_alias_generate_node_alias',
+          array($type, $name, $total),
+        );
       }
     }
   }
