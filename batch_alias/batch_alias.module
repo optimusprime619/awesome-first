@@ -88,15 +88,16 @@ function get_aliasable_content_type() {
 }
 
 /**
- * Function to check if nodes exist for given content type and return an appropriate flag.
+ * Check if nodes exist for given content type and return appropriate flag.
  * @param
- * $content_type - the content type to check for nodes
+ * content_type - the content type to check for nodes
  *
  * @return
- * exists - TRUE if nodes present for the content type, FALSE otherwise
+ *  exists - boolean TRUE if nodes present for the content type, FALSE otherwise
  */
 function node_exists_for_type($content_type) {
-  // Check for single node rather than count query which might prove costly for heavy database with large content.
+  // Check for single node rather than count query, 
+  // Which might prove costly for heavy database with large content.
   $exists = TRUE;
   $nodes_exists_qry = db_select('node', 'n')
   ->fields('n', array('nid'))
@@ -119,7 +120,6 @@ function node_exists_for_type($content_type) {
  *  $name - the human readable name of node type
  *  $total_count - the total number of published nodes of a node type
  *  $context - the context array provided by the Batch API
- *
  */
 function batch_alias_generate_node_alias($node_type, $name, $total_count, &$context) {
   $count = 10;
@@ -140,21 +140,28 @@ function batch_alias_generate_node_alias($node_type, $name, $total_count, &$cont
   $nodes_select = "SELECT `nid` FROM {node} WHERE `type` = :node_type AND `status` = :node_status";
   for ($offset = 0; $offset <= $total_count; $offset += $count) {
     $nodes_fetch_result = db_query_range($nodes_select, $offset, $count, array(':node_type' => $node_type, ':node_status' => 1));
-    foreach ($nodes_fetch_result as $nodes ) {
+    foreach ($nodes_fetch_result as $nodes) {
       $nids[] = $nodes->nid;
     }
     $added_nodes = count($nids);
     if ($added_nodes) {
       $sandbox['progress'] += $added_nodes;
       pathauto_node_update_alias_multiple($nids, $op = 'bulkupdate', $options = array());
-      $context['message'] = t('@name: Processed %progress of %total', array('@name' => $name, '%progress' => $sandbox['progress'], '%total' => $total_count));
+      $context['message'] = t('@name: Processed %progress of %total', array(
+        '@name' => $name,
+        '%progress' => $sandbox['progress'],
+        '%total' => $total_count)
+      );
       unset($nids);
     }
   }
   $context['finished'] = 1;
   $batch_results = &$context['results'];
   $batch_results['types'][] = $node_type; 
-  $batch_results[$node_type] = t('%count of %total nodes processed for type @name', array('%count' => $sandbox['progress'], '%total' => $total_count, '@name' => $name));
+  $batch_results[$node_type] = t('%count of %total nodes processed for type @name', array(
+    '%count' => $sandbox['progress'],
+    '%total' => $total_count, '@name' => $name)
+  );
   $batch_results['grandtotal_nodes'] = isset($batch_results['grandtotal_nodes']) ? $batch_results['grandtotal_nodes'] : 0;
   $batch_results['grandtotal_nodes'] += $sandbox['progress'];
   watchdog('batch_alias', '%count of %total nodes processed for type @type', array('%count' => $sandbox['progress'], '%total' => $total_count, '@type' => $node_type));
@@ -212,16 +219,16 @@ function batch_alias_complete($success, $results, $operations) {
       
       ));
       watchdog('batch_alias', 'Grand total of number of nodes aliased: %grandtotal_nodes', array(
-        '%grandtotal_nodes' => $results['grandtotal_nodes'])
-      );
+        '%grandtotal_nodes' => $results['grandtotal_nodes'],
+      ));
     }
     if (isset($results['grandtotal_users'])) {
       drupal_set_message($results['user_aliasing_result']);
       drupal_set_message(t('Grand total of number of users aliased: %grandtotal_users', array(
-        '%grandtotal_users' => $results['grandtotal_users']
+        '%grandtotal_users' => $results['grandtotal_users'],
       )));
       watchdog('batch_alias', 'Grand total of number of users aliased: %grandtotal_users', array(
-        '%grandtotal_users' => $results['grandtotal_users']
+        '%grandtotal_users' => $results['grandtotal_users'],
       ));
     }
   }
@@ -229,7 +236,7 @@ function batch_alias_complete($success, $results, $operations) {
     $error_operation = reset($operations);
     $message = t('An error occurred while processing %error_operation with arguments: @arguments', array(
                 '%error_operation' => $error_operation[0],
-                '@arguments' => print_r($error_operation[1], TRUE)
+                '@arguments' => print_r($error_operation[1], TRUE),
               ));
     drupal_set_message($message, 'error')
   }

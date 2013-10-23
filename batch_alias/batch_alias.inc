@@ -110,7 +110,7 @@ function run_batch_alias() {
       if ($total) {
         $operations[] = array(
                           'batch_alias_generate_node_alias',
-                          array($type, $name, $total)
+                          array($type, $name, $total),
                         );
       }
     }
