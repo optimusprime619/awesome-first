@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * To clear out any variables set by the Batch Alias module
+ */
+ 
+/**
+ * Implements hook_uninstall().
+ * This hook does the cleanup of any custom variables used by the batch_alias module
+ */
+function batch_alias_uninstall() {
+  
+  // delete the batch user settings
+  variable_del('batch_alias_users');
+  
+  // delete any node specific variables
+  $node_types = array();
+  $node_types = array_keys(node_type_get_types());
+  foreach ($node_types as $type) {
+    variable_del('batch_alias_' . $type);
+  }
+}
