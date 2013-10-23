@@ -6,7 +6,7 @@
  */
 
 /**
- * Form builder for the alias settings option form
+ * Form builder for the alias settings option form.
  */
 function batch_alias_settings_form() {
   $aliasable_content_types = get_aliasable_content_type();
@@ -19,11 +19,11 @@ function batch_alias_settings_form() {
   );
   $alias_settings = &$form['batch_settings'];
   $alias_settings['node_settings'] = array(
-      '#title' => t('Node Settings'),
-      '#type' => 'fieldset',
-      '#collapsible' => TRUE,
-      '#description' => t('Choose the content types and settings for the batch URL aliasing process. 
-                            If a content type is disabled it implies there are no nodes to alias in it.'),
+    '#title' => t('Node Settings'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#description' => t('Choose the content types and settings for the batch URL aliasing process. 
+                          If a content type is disabled it implies there are no nodes to alias in it.'),
   );
   if (count($aliasable_content_types)) {
     $content_types = array();
@@ -43,9 +43,9 @@ function batch_alias_settings_form() {
       '#markup' => '<b>' . t('No Node settings available') . '</b>',
     );
     drupal_set_message(t('It appears that your content types do not have an alias pattern set or there might be no content types at all. 
-                    Please check your content type settings in !content_type_link and URL alias settings in !alias_settings_link', 
-                    array('!content_type_link' => l(t('Content Types'), 'admin/structure/types') , 
-                    '!alias_settings_link' => l(t('URL Patterns'), 'admin/config/search/path/patterns'))), 
+                    Please check your content type settings in !content_type_link and URL alias settings in !alias_settings_link',
+                    array('!content_type_link' => l(t('Content Types'), 'admin/structure/types'),
+                    '!alias_settings_link' => l(t('URL Patterns'), 'admin/config/search/path/patterns'))),
                     'warning');
     return $form;
   }
@@ -54,7 +54,7 @@ function batch_alias_settings_form() {
     '#type' => 'hidden',
     '#value' => $content_types,
   );
-  
+
   $alias_settings['user_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('User Alias Settings'),
@@ -71,8 +71,8 @@ function batch_alias_settings_form() {
 }
 
 /**
- * Submission handler for the batch alias settings form
- * @see batch_alias_settings_form().
+ * Submission handler for the batch alias settings form.
+ * @see batch_alias_settings_form()
  */
 function batch_alias_settings_form_submit($form, &$form_state) {
   $submitted_settings = $form_state['values'];
@@ -86,7 +86,8 @@ function batch_alias_settings_form_submit($form, &$form_state) {
 }
 
 /**
- * Form builder to get user confirmation to start running the node aliasing with Batch API
+ * Form builder to get user confirmation to start 
+ * running the node aliasing with Batch API.
  */
 function run_batch_aliasing_form() {
   $form = array();
@@ -98,7 +99,7 @@ function run_batch_aliasing_form() {
 }
 
 /**
- * Function to trigger the batch aliasing process
+ * Function to trigger the batch aliasing process.
  */
 function run_batch_alias() {
   $aliasible_node_types = get_aliasable_content_type();
@@ -115,7 +116,7 @@ function run_batch_alias() {
     $users_count = db_query("SELECT COUNT(uid) FROM {users} WHERE `uid` > 0")->fetchField();
     $operations[] = array('batch_alias_generate_user_alias', array($users_count));
   }
-  
+
   $batch = array(
     'init_message' => t('Starting alias generation'),
     'title' => t('Content Aliasing'),

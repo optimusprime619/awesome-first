@@ -3,3 +3,4 @@ description = Provides functionality to create aliasing of content through Drupa
 core = 7.x
 dependencies[] = pathauto
 configure = admin/config/development/batch_alias
+
