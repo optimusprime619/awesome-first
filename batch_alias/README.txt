@@ -18,22 +18,28 @@ PERMISSIONS:
 ============
 
 This module has two permissions namely 
-  'Configure batch aliasing settings' for restricting access to the batch settings configuration form 
-  'Run batch aliasing of content' for access to running the batch aliasing of content.
+'Configure batch aliasing settings' for access to batch settings form 
+'Run batch aliasing of content' for access to running the batch aliasing.
 
 RUN BATCH ALIASING:
 ===================
 
-Configure the settings for Batch aliasing by choosing the necessary node types and if users need to be aliased. 
+Configure the settings for Batch aliasing by choosing the 
+necessary node types and if users need to be aliased.
 
-If a content type is disabled it might either mean that there are no nodes of that type 
-or it lacks its own node patterns which can be configured in the pathauto alias settings. 
+If a content type is disabled it might either mean that 
+there are no nodes of that type or 
+it lacks its own node patterns which can be configured 
+in the pathauto alias settings. 
 
 The configuration form is available by navigating to 
-Administer >> Configuration >> Development >> Configure Batch Alias Settings & Run Batch Alias.
+Administer >> Configuration >> Development >> 
+Configure Batch Alias Settings & Run Batch Alias.
 
-Once the configuration is saved Click the Run Batch Alias to select from the confirmation form 
-and run the batch aliasing. The process would alias all content types and users if selected.
+Once the configuration is saved Click the 
+'Run Batch Alias' to select from the confirmation form 
+and run the batch aliasing. The process would alias all content types
+and users if selected.
 
 
 AUTHOR/MAINTAINER

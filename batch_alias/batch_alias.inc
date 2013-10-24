@@ -76,11 +76,17 @@ function batch_alias_settings_form() {
  * @see batch_alias_settings_form()
  */
 function batch_alias_settings_form_submit($form, &$form_state) {
+  // Initialize flag as false.
+  variable_set('batch_alias_possible', 0);
   $submitted_settings = $form_state['values'];
   $content_type_info = $submitted_settings['all_content_types'];
+  if ($submitted_settings['user_alias_option']) {
+    variable_set('batch_alias_possible', 1);
+  }
   if (count($content_type_info)) {
     foreach ($content_type_info as $content_type_name) {
       variable_set('batch_alias_' . $content_type_name, $submitted_settings[$content_type_name]);
+      $submitted_settings[$content_type_name] ? variable_set('batch_alias_possible', 1) : '';
     }
   }
   variable_set('batch_alias_users', $submitted_settings['user_alias_option']);
@@ -91,11 +97,28 @@ function batch_alias_settings_form_submit($form, &$form_state) {
  */
 function run_batch_aliasing_form() {
   $form = array();
+  if (!variable_get('batch_alias_possible', 0)) {
+    // If aliasing not possible set a message,
+    // And pass a form comprising the text markup
+    drupal_set_message(t("No content or users to alias. 
+    Please check the !batch_alias and !automated_alias 
+    settings.",
+    array(
+      '!batch_alias' => l(t('Batch Alias'), 
+      'admin/config/development/batch_alias'),
+      '!automated_alias' => l(t('Automated Alias'), 
+      'admin/config/search/path/patterns')
+    )), 'warning');
+    return $form['message'] = array(
+      '#markup' => '<p>No content to alias with the current settings.</p>',
+    );
+  }
   $form['#submit'][] = 'run_batch_alias';
   $question = t("Are you sure you want to run Batch aliasing of content?");
-  $description = t("This might take long and depends on the quantity of content in your site and your URL alias settings. This action cannot be undone.");
+  $description = t("This might take long and depends on the quantity of content
+  in your site and your URL alias settings. This action cannot be undone.");
   $path = "admin/config/development/batch_alias";
-  return confirm_form($form, $question, $path, $description, $yes = "Confirm", $no = "Cancel", $name = "batch_alias_confirm");
+  return confirm_form($form, $question, $path, $description, "Confirm", "Cancel", "batch_alias_confirm");
 }
 
 /**
@@ -115,7 +138,7 @@ function run_batch_alias() {
       }
     }
   }
-  if (variable_get('pathauto_user_pattern', '')) {
+  if (variable_get('pathauto_user_pattern', '') && variable_get('batch_alias_users', 0)) {
     $users_count = db_query("SELECT COUNT(uid) FROM {users} WHERE `uid` > 0")->fetchField();
     $operations[] = array('batch_alias_generate_user_alias', array($users_count));
   }
