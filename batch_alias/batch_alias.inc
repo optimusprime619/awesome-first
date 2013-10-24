@@ -99,15 +99,15 @@ function run_batch_aliasing_form() {
   $form = array();
   if (!variable_get('batch_alias_possible', 0)) {
     // If aliasing not possible set a message,
-    // And pass a form comprising the text markup
+    // And pass a form comprising the text markup.
     drupal_set_message(t("No content or users to alias. 
     Please check the !batch_alias and !automated_alias 
     settings.",
     array(
-      '!batch_alias' => l(t('Batch Alias'), 
+      '!batch_alias' => l(t('Batch Alias'),
       'admin/config/development/batch_alias'),
-      '!automated_alias' => l(t('Automated Alias'), 
-      'admin/config/search/path/patterns')
+      '!automated_alias' => l(t('Automated Alias'),
+      'admin/config/search/path/patterns'),
     )), 'warning');
     return $form['message'] = array(
       '#markup' => '<p>No content to alias with the current settings.</p>',

@@ -75,7 +75,7 @@ function get_aliasable_content_type() {
     $node_types[$node_type] = $node_types_obj_arr[$node_type]->name;
   }
   // Check if all node types can be aliased, (i-e)
-  // If there's a general pattern for content then TRUE, 
+  // If there's a general pattern for content then TRUE,
   // Else only those node types with a specific alias pattern qualify.
   $node_pattern_exists = variable_get('pathauto_node_pattern', '');
   if ($node_pattern_exists) {
@@ -91,13 +91,14 @@ function get_aliasable_content_type() {
 
 /**
  * Check if nodes exist for given content type and return appropriate flag.
+ *
  * @param string $content_type
  *  the content type to check for nodes
- * @return boolean $exists
+ * @return bool $exists
  *  TRUE if nodes present for the content type, FALSE otherwise.
  */
 function node_exists_for_type($content_type) {
-  // Check for single node rather than count query, 
+  // Check for single node rather than count query,
   // Which might prove costly for heavy database with large content.
   $exists = TRUE;
   $nodes_exists_qry = db_select('node', 'n')
@@ -115,6 +116,7 @@ function node_exists_for_type($content_type) {
 
 /**
  * Function to generate the respective alias for content types.
+ *
  * @param string $node_type
  *  the machine name of the node type
  * @param string $name
