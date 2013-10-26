@@ -101,7 +101,7 @@ function run_batch_aliasing_form() {
     // If aliasing not possible set a message,
     // And pass a form comprising the text markup.
     drupal_set_message(t("No content or users to alias. 
-    Please check the !batch_alias and !automated_alias 
+    Please check the !batch_alias and !automated_alias
     settings.",
     array(
       '!batch_alias' => l(t('Batch Alias'),
