@@ -21,6 +21,6 @@ function batch_alias_uninstall() {
   foreach ($node_types as $type) {
     variable_del('batch_alias_' . $type);
   }
-  // Delete the flag used to check if batch aliasing is possible
+  // Delete the flag used to check if batch aliasing is possible.
   variable_del('batch_alias_possible');
 }
