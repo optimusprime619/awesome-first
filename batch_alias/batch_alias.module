@@ -65,14 +65,14 @@ function batch_alias_menu() {
  * Function to get content types applicable for aliasing.
  *
  * @return array $node_types
- *   associative array of format $arr['node_type_machine_name'] = 
+ *   associative array of format $arr['node_type_machine_name'] =
  *  'Node Type Human readable name' eligible for being aliased.
  */
 function get_aliasable_content_type() {
   $node_types = array();
   $node_types_obj_arr = node_type_get_types();
   $node_types_arr = array_keys($node_types_obj_arr);
-  foreach ($node_types_arr as $num_idx => $node_type) {
+  foreach ($node_types_arr as $node_type) {
     $node_types[$node_type] = $node_types_obj_arr[$node_type]->name;
   }
   // Check if all node types can be aliased, (i-e)
@@ -153,7 +153,7 @@ function batch_alias_generate_node_alias($node_type, $name, $total_count, &$cont
     $added_nodes = count($nids);
     if ($added_nodes) {
       $sandbox['progress'] += $added_nodes;
-      pathauto_node_update_alias_multiple($nids, $op = 'bulkupdate', $options = array());
+      pathauto_node_update_alias_multiple($nids, 'bulkupdate', array());
       $context['message'] = t('@name: Processed %progress of %total', array(
         '@name' => $name,
         '%progress' => $sandbox['progress'],
@@ -202,7 +202,7 @@ function batch_alias_generate_user_alias($users_count, &$context) {
     $added_users = count($uids);
     if ($added_users) {
       $sandbox['progress'] += $added_users;
-      pathauto_user_update_alias_multiple($uids, $op = 'bulkupdate');
+      pathauto_user_update_alias_multiple($uids, 'bulkupdate');
       $context['message'] = t('User Aliasing: Processed %progress of %total', array('%progress' => $sandbox['progress'], '%total' => $users_count));
       unset($uids);
     }
