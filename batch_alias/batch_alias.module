@@ -62,10 +62,10 @@ function batch_alias_menu() {
 }
 
 /**
- * Function to content types applicable for aliasing in batch alias settings form.
+ * Function to get content types applicable for aliasing.
  *
  * @return array $node_types
- *    associative array of format $arr['node_type_machine_name'] = 
+ *   associative array of format $arr['node_type_machine_name'] = 
  *  'Node Type Human readable name' eligible for being aliased.
  */
 function get_aliasable_content_type() {
@@ -94,10 +94,10 @@ function get_aliasable_content_type() {
  * Check if nodes exist for given content type and return appropriate flag.
  *
  * @param string $content_type
- *    the content type to check for nodes.
+ *   the content type to check for nodes.
  *
  * @return bool $exists
- *    TRUE if nodes present for the content type, FALSE otherwise.
+ *   TRUE if nodes present for the content type, FALSE otherwise.
  */
 function node_exists_for_type($content_type) {
   // Check for single node rather than count query,
@@ -120,13 +120,13 @@ function node_exists_for_type($content_type) {
  * Function to generate the respective alias for content types.
  *
  * @param string $node_type
- *    the machine name of the node type
+ *   the machine name of the node type
  * @param string $name
- *    the human readable name of node type
+ *   the human readable name of node type
  * @param int $total_count
- *    the total number of published nodes of a node type
+ *   the total number of published nodes of a node type
  * @param array $context 
- *    the context array provided by the Batch API
+ *   the context array provided by the Batch API
  */
 function batch_alias_generate_node_alias($node_type, $name, $total_count, &$context) {
   $count = 10;
