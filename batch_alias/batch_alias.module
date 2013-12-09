@@ -53,7 +53,7 @@ function batch_alias_menu() {
     'title' => 'Run batch alias',
     'description' => 'Trigger batch aliasing of content as per the aliasing settings',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('run_batch_aliasing_form'),
+    'page arguments' => array('batch_alias_run_batch_aliasing_form'),
     'access arguments' => array('run batch aliasing'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'batch_alias.inc',
@@ -68,7 +68,7 @@ function batch_alias_menu() {
  *   associative array of format $arr['node_type_machine_name'] =
  *  'Node Type Human readable name' eligible for being aliased.
  */
-function get_aliasable_content_type() {
+function batch_alias_get_aliasable_content_type() {
   $node_types = array();
   $node_types_obj_arr = node_type_get_types();
   $node_types_arr = array_keys($node_types_obj_arr);
@@ -99,7 +99,7 @@ function get_aliasable_content_type() {
  * @return bool $exists
  *   TRUE if nodes present for the content type, FALSE otherwise.
  */
-function node_exists_for_type($content_type) {
+function batch_alias_node_exists_for_type($content_type) {
   // Check for single node rather than count query,
   // Which might prove costly for heavy database with large content.
   $exists = TRUE;
@@ -217,7 +217,7 @@ function batch_alias_generate_user_alias($users_count, &$context) {
 
 /**
  * Success callback for the batch aliasing process.
- * @see run_batch_alias()
+ * @see batch_alias_run_batch_alias()
  */
 function batch_alias_complete($success, $results, $operations) {
   if ($success) {

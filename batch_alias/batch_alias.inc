@@ -9,7 +9,7 @@
  * Form builder for the alias settings option form.
  */
 function batch_alias_settings_form() {
-  $aliasable_content_types = get_aliasable_content_type();
+  $aliasable_content_types = batch_alias_get_aliasable_content_type();
   $form = array();
   $form['batch_settings'] = array(
     '#title' => t('Batch Alias Settings'),
@@ -32,7 +32,7 @@ function batch_alias_settings_form() {
       $alias_settings['node_settings'][$content_type] = array(
         '#type' => 'checkbox',
         '#title' => t('%type', array('%type' => $content_name)),
-        '#disabled' => !(node_exists_for_type($content_type)),
+        '#disabled' => !(batch_alias_node_exists_for_type($content_type)),
         '#default_value' => variable_get('batch_alias_' . $content_type, 0),
       );
     }
@@ -95,7 +95,7 @@ function batch_alias_settings_form_submit($form, &$form_state) {
 /**
  * Form builder to run batch aliasing.
  */
-function run_batch_aliasing_form() {
+function batch_alias_run_batch_aliasing_form() {
   $form = array();
   if (!variable_get('batch_alias_possible', 0)) {
     // If aliasing not possible set a message,
@@ -113,7 +113,7 @@ function run_batch_aliasing_form() {
       '#markup' => '<p>No content to alias with the current settings.</p>',
     );
   }
-  $form['#submit'][] = 'run_batch_alias';
+  $form['#submit'][] = 'batch_alias_run_batch_alias';
   $question = t("Are you sure you want to run Batch aliasing of content?");
   $description = t("This might take long and depends on the quantity of content
   in your site and your URL alias settings. This action cannot be undone.");
@@ -124,8 +124,8 @@ function run_batch_aliasing_form() {
 /**
  * Function to trigger the batch aliasing process.
  */
-function run_batch_alias() {
-  $aliasible_node_types = get_aliasable_content_type();
+function batch_alias_run_batch_alias() {
+  $aliasible_node_types = batch_alias_get_aliasable_content_type();
   $operations = array();
   foreach ($aliasible_node_types as $type => $name) {
     if (variable_get('batch_alias_' . $type, 0)) {
