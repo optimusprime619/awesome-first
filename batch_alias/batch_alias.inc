@@ -22,7 +22,7 @@ function batch_alias_settings_form() {
     '#title' => t('Node Settings'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
-    '#description' => t('Choose the content types and settings for the batch URL aliasing process. 
+    '#description' => t('Choose the content types and settings for the batch URL aliasing process.
                           If a content type is disabled it implies there are no nodes to alias in it.'),
   );
   if (count($aliasable_content_types)) {
@@ -42,7 +42,7 @@ function batch_alias_settings_form() {
     $alias_settings['node_settings']['node_display_message'] = array(
       '#markup' => '<b>' . t('No Node settings available') . '</b>',
     );
-    drupal_set_message(t('It appears that your content types do not have an alias pattern set or there might be no content types at all. 
+    drupal_set_message(t('It appears that your content types do not have an alias pattern set or there might be no content types at all.
                     Please check your content type settings in !content_type_link and URL alias settings in !alias_settings_link',
                     array(
                       '!content_type_link' => l(t('Content Types'), 'admin/structure/types'),
@@ -100,7 +100,7 @@ function batch_alias_run_batch_aliasing_form() {
   if (!variable_get('batch_alias_possible', 0)) {
     // If aliasing not possible set a message,
     // And pass a form comprising the text markup.
-    drupal_set_message(t("No content or users to alias. 
+    drupal_set_message(t("No content or users to alias.
     Please check the !batch_alias and !automated_alias
     settings.",
     array(

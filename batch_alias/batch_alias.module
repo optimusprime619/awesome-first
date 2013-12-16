@@ -125,17 +125,17 @@ function batch_alias_node_exists_for_type($content_type) {
  *   the human readable name of node type
  * @param int $total_count
  *   the total number of published nodes of a node type
- * @param array $context 
+ * @param array $context
  *   the context array provided by the Batch API
  */
 function batch_alias_generate_node_alias($node_type, $name, $total_count, &$context) {
   $count = 10;
   $nids = array();
-  /*$nodes_fetch_qry = db_select('node', 'n')
+  /* $nodes_fetch_qry = db_select('node', 'n')
   ->fields(n, array(nid))
   ->condition('type', $content_type)
   ->condtion('status', 1)
-  ->range($offset, $limit);*/
+  ->range($offset, $limit); */
   if (!isset($context['sandbox'])) {
     $context['sandbox'] = array();
     $context['results'] = array();
